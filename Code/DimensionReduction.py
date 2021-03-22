@@ -3,8 +3,7 @@ from typing import List
 import math
 import matplotlib.pyplot as plt
 import random
-x = [1,2,3,4,5,6,7]
-y = [1,1.5,2,3,4.5,5,6.7]
+import pandas as pd
 Vector = np.array
 
 def de_mean(data:List[Vector])->List[Vector]:
@@ -32,25 +31,33 @@ def first_principal_component(data:List[Vector],n:int,step_size:float=0.01)->Vec
     for i in range(n):
         dv = directional_varience(data,guess)
         gradient = directional_varience_gradient(data,guess)
-        guess = guess-gradient*step_size
+        guess = guess+gradient*step_size
         print(i,guess)
     return direction(guess)
 
-datas = list(zip(x,y))
 
+def project(v:Vector,w:Vector)->Vector:
+    """v投影在w方向上得分量 w 長度為1"""
+    w_dir = direction(w)
+    projection_len = np.dot(v,w_dir)
+    return Vector([w_i*projection_len for w_i in w])
 
-x_new,y_new = zip(*de_mean(datas))
-print(x_new,y_new)
-# plt.figure(figsize=(10, 10), dpi=100)
-plt.scatter(x_new, y_new)
-# plt.xticks([-2,-1,0,1,2,3,4,5]) #設定x軸刻度
-# plt.yticks([-2,-1,0,1,2,3,4,5])
-plt.xlim(-5,6)
-plt.ylim(-3,3)
-v_1,v_2 = first_principal_component(de_mean(datas),1000)
+def remove_projection_from_vector(v:Vector,w:Vector)->Vector:
+    return v-project(v,w)
+def remove_project(data:List[Vector],w:Vector)->List[Vector]:
+    return [remove_projection_from_vector(v,w) for v in data]
 
-plt.quiver(0,0,v_1,v_2, color=['r'], scale=10)
-plt.show()
+def pca(data:List[Vector],num_components:int)->List[Vector]:
+    components = []
+    for _ in range(num_components):
+        component = first_principal_component(data,100)
+        components.append(component)
+        data = remove_project(data,component)
+    return components
+def transform_vector(v:Vector,components:List[Vector])->Vector:
+    return [np.dot(v,w) for w in components]
+def transform(data:List[Vector],components:List[Vector])->Vector:
+    return [transform_vector(v,components) for v in data]
 
 
 
