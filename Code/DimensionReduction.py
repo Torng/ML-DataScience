@@ -25,7 +25,7 @@ def directional_varience_gradient(data:List[Vector],w:Vector):
     w_dir = direction(w)
     return np.array([sum(2*np.dot(v,w_dir)*v[i] for v in data) for i in range(len(w))])
 
-def first_principal_component(data:List[Vector],n:int,step_size:float=0.01)->Vector:
+def first_principal_component(data:List[Vector],n:int,step_size:float=0.001)->Vector:
     guess = [1.0 for _ in data[0]]
 
     for i in range(n):
