@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 import random
 import itertools
+import tqdm
 from matplotlib import pyplot as plot
 Vector = np.array
 datas = [[-14,-5],[13,13],[20,23],[-19,-11],[-9,-16],[21,27],[-49,15],[26,13],[-46,5],[-34,-1],[11,15],[-49,0],[-22,-16],[19,28],[-12,-8],[-13,-19],[-41,8],[-11,-6],[-25,-9],[-18,-3]]
@@ -27,18 +28,30 @@ class KMeans:
     def train(self,inputs:List[Vector])->None:
         assignments = [random.randrange(self.k) for _ in inputs]
 
-        for _ in itertools.count():
-            self.means = cluster_means(self.k,inputs,assignments)
-            new_assignments = [self.classify(input) for input in inputs]
-            num_changed = num_difference(assignments,new_assignments)
-            if num_changed == 0:
-                return
-            assignments = new_assignments
-            self.means = cluster_means(self.k,inputs,assignments)
+        # for _ in itertools.count():
+        #     self.means = cluster_means(self.k,inputs,assignments)
+        #     new_assignments = [self.classify(input) for input in inputs]
+        #     num_changed = num_difference(assignments,new_assignments)
+        #     if num_changed == 0:
+        #         return
+        #     assignments = new_assignments
+        #     self.means = cluster_means(self.k,inputs,assignments)
+        with tqdm.tqdm(itertools.count()) as t:
+            for _ in t:
+                self.means = cluster_means(self.k, inputs, assignments)
+                new_assignments = [self.classify(input) for input in inputs]
+                num_changed = num_difference(assignments, new_assignments)
+                if num_changed == 0:
+                    return
+                assignments = new_assignments
+                self.means = cluster_means(self.k, inputs, assignments)
+                t.set_description(f"change:{num_changed}/{len(inputs)}")
 
+if __name__ == "__main__":
+    pass
 model = KMeans(3)
 model.train(np.array(datas))
-print(model.means)
+# print(model.means)
 cluster_x = [x_i[0] for x_i in model.means]
 cluster_y = [y_i[1] for y_i in model.means]
 
