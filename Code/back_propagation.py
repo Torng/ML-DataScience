@@ -9,7 +9,7 @@ Vector = np.array
 # 跳過
 def add(v: Vector, w: Vector) -> Vector:
     """Adds corresponding elements"""
-    assert len(v) == len(w), "vectors must be the same length"
+    # assert len(v) == len(w), "vectors must be the same length"
 
     return [v_i + w_i for v_i, w_i in zip(v, w)]
 def scalar_multiply(c: float, v: Vector) -> Vector:
@@ -17,19 +17,22 @@ def scalar_multiply(c: float, v: Vector) -> Vector:
     return [c * v_i for v_i in v]
 def gradient_step(v: Vector, gradient: Vector, step_size: float) -> Vector:
     """Moves `step_size` in the `gradient` direction from `v`"""
-    assert len(v) == len(gradient)
+    # assert len(v) == len(gradient)
     step = scalar_multiply(step_size, gradient)
     return add(v, step)
 def sqerror_gradient(network:List[List[Vector]],inputs_vector:Vector,target_vector:Vector)->List[List[Vector]]:
     hidden_outputs , outputs = feed_forward(network,inputs_vector)
 
-    output_deltas = [output*(1-output)*(output-target) for output,target in zip(outputs,target_vector)]
+    output_deltas = [output*(1-output)*(output-target)
+                     for output,target in zip(outputs,target_vector)]
 
-    output_grads = [ [output_deltas[i]*hidden_output for hidden_output in hidden_outputs] for i,output_neuron in enumerate(network[-1])]
+    output_grads = [[output_deltas[i]*hidden_output for hidden_output in hidden_outputs+[1]]
+                     for i,output_neuron in enumerate(network[-1])]
 
-    hidden_deltas = [hidden_output*(1-hidden_output*np.dot(output_deltas,[n[i] for n in network[i]]))
+    hidden_deltas = [hidden_output*(1-hidden_output)*np.dot(output_deltas,[n[i] for n in network[-1]])
                      for i,hidden_output in enumerate(hidden_outputs)]
-    hidden_grads = [[hidden_deltas[i]*input for input in inputs_vector+[1] ]for i,hidden_neuron in enumerate(network[0])]
+    hidden_grads = [[hidden_deltas[i]*input for input in inputs_vector+[1]]
+                    for i,hidden_neuron in enumerate(network[0])]
 
     return [hidden_grads,output_grads]
 network = [
@@ -45,5 +48,9 @@ ys = [[0],[1],[1],[0]]
 for epoch in tqdm.trange(20000,desc="neural net for XOR"):
     for x,y in zip(xs,ys):
         gradients = sqerror_gradient(network,x,y)
-        network = [[gradient_step(neuron,grad,-1.0) for neuron,grad in zip(layer,layer_grad)]for layer,layer_grad in zip(network,gradients)]
+        network = [[gradient_step(neuron,grad,-1.0) for neuron,grad in zip(layer,layer_grad)]
+                   for layer,layer_grad in zip(network,gradients)]
+
+
+print(feed_forward(network,[[0,0]]))
 
