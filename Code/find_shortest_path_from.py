@@ -1,7 +1,7 @@
 from typing import Dict,List
 import time
-
-
+import networkx as nx
+from matplotlib import pyplot as plt
 Friendships =Dict[int,List[int]]
 
 users = [
@@ -23,10 +23,15 @@ friendship = {user["id"]:[] for user in users}
 for x,y in friendpair:
     friendship[x].append(y)
     friendship[y].append(x)
-
-
+def draw_basic_network_graph(nodes):
+    G = nx.Graph()
+    G.add_edges_from(nodes)
+    plt.figure(figsize=(8,6))
+    nx.draw(G, with_labels=True, node_size=3000, font_size=20, font_family='Source Han Sans TW',font_color="yellow", font_weight="bold")
+    plt.show()
 
 def shortest_path_from(id,friendship)->Dict[int,List[List[int]]]:
+
     shortest_path = {id:[[id]]}
     nows_friends_path = {id:friendship[id]}
     left_friends = list(friendship.keys())
@@ -53,8 +58,10 @@ def shortest_path_from(id,friendship)->Dict[int,List[List[int]]]:
         nows_friends_path = {next_neighbor:friendship[next_neighbor] for next_neighbor in next_neighbors}
         left_friends = list(set(left_friends)-set(shortest_path.keys()))
     return shortest_path
+draw_basic_network_graph(friendpair)
+
 start = time.time()
-shortest_path_from(3,friendship)
+print(shortest_path_from(3,friendship))
 end = time.time()
 print(round(end-start,6))
 
