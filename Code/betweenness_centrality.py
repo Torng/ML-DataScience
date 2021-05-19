@@ -1,6 +1,8 @@
 from typing import Dict,List
 from collections import deque
 import time
+from matplotlib import pyplot as plt
+import networkx as nx
 Path = List[int]
 Friendships =Dict[int,List[int]]
 
@@ -44,10 +46,29 @@ def shortest_paths_from(from_user_id:int,friendships:Friendships)->Dict[int,List
                         for friend_id in friendships[user_id]
                         if friend_id not in shortest_paths_to)
     return shortest_paths_to
-start = time.time()
-print(shortest_paths_from(3,friendships))
-end = time.time()
-print('%.6f' % float(end-start))
+shortest_paths = {user["id"]:shortest_paths_from(user["id"],friendships)
+                  for user in users}
+betweenness_centrlity = {user["id"]:0.0 for user in users}
+for source in users:
+    for target_id , paths, in shortest_paths[source["id"]].items():
+        if(source["id"]<target_id):
+            num_paths = len(paths)
+            contrib = 1/num_paths
+            for path in paths:
+                for between_id in path:
+                    if between_id not in [source["id"],target_id]:
+                        betweenness_centrlity[between_id] +=contrib
+def draw_basic_network_graph(nodes,node_sizes):
+    G = nx.Graph()
+    G.add_edges_from(nodes)
+    plt.figure(figsize=(8,6))
+    nx.draw(G, with_labels=True, node_size=node_sizes, font_size=20, font_family='Source Han Sans TW',font_color="yellow", font_weight="bold")
+    plt.show()
+
+print(betweenness_centrlity)
+node_sizes = [500 if value == 0.0 else value*500for between_id,value in betweenness_centrlity.items() ]
+draw_basic_network_graph(friendpair,node_sizes)
+
 
 
 

@@ -26,6 +26,7 @@ for x,y in friendpair:
 def draw_basic_network_graph(nodes):
     G = nx.Graph()
     G.add_edges_from(nodes)
+    G.size()
     plt.figure(figsize=(8,6))
     nx.draw(G, with_labels=True, node_size=3000, font_size=20, font_family='Source Han Sans TW',font_color="yellow", font_weight="bold")
     plt.show()
