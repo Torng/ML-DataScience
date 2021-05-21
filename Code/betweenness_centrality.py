@@ -70,5 +70,15 @@ node_sizes = [500 if value == 0.0 else value*500for between_id,value in betweenn
 draw_basic_network_graph(friendpair,node_sizes)
 
 
+def farness(user_id:int)->float:
+    return sum(len(paths[0]) for paths in shortest_paths[user_id].values())
+
+closeness_centrality = {user["id"]:1/farness(user["id"]) for user in users}
+print(closeness_centrality)
+closeness_node_size = [size*100000 for size in closeness_centrality.values()]
+draw_basic_network_graph(friendpair,closeness_node_size)
+
+
+
 
 
