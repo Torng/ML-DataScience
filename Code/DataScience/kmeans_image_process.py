@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image
-from Code.k_means import KMeans
-from matplotlib import pyplot as plt
+from Code.DataScience.k_means import KMeans
+
 image = Image.open(r"/Users/HawkTorng/Downloads/海綿寶寶.jpeg")
 image_arr = np.array(image)
 image_arr = image_arr/256

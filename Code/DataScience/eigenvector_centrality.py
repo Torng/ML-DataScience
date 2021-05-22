@@ -1,5 +1,5 @@
 import numpy as np
-from Code.betweenness_centrality import draw_basic_network_graph
+from Code.DataScience.betweenness_centrality import draw_basic_network_graph
 
 
 friendpair = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (3, 4),

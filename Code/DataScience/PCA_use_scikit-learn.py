@@ -1,9 +1,7 @@
 from sklearn.decomposition import PCA
-import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
-from Code.DimensionReduction import de_mean,pca,transform,first_principal_component,project,direction
-
+from Code.DataScience.DimensionReduction import de_mean
 
 x = [0,1,2,3,4,5,6,7]
 y = [1,1.5,1.7,4,4.5,4.7,8,9]

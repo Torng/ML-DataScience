@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-from Code.DimensionReduction import de_mean
+from Code.DataScience.DimensionReduction import de_mean
 Vector = np.array()
 def predice(alpha:float,beta:float,x_i:float)->float:
     return beta*x_i+alpha

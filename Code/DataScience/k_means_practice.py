@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 import itertools
-from Code.k_means import datas
+from Code.DataScience.k_means import datas
 from matplotlib import pyplot as plt
 import random
 

@@ -1,6 +1,6 @@
 from typing import NamedTuple,Union,Any,List
 from collections import Counter
-from Code.decision_tree import partition_entropy_by,partition_by,candidates,Candidate
+from Code.DataScience.decision_tree import partition_entropy_by,partition_by,candidates,Candidate
 class Leaf(NamedTuple):
     value:Any
 class Split(NamedTuple):

@@ -1,10 +1,6 @@
 import numpy as np
-from typing import List
-import math
 import matplotlib.pyplot as plt
-import pandas as pd
-from Code.DimensionReduction import de_mean,pca,transform,first_principal_component,project,direction
-
+from Code.DataScience.DimensionReduction import de_mean,pca,transform
 
 # df = pd.read_csv("https://bit.ly/2FkIaTv", sep="\t", index_col="名稱")
 # lol_data = df.to_numpy()

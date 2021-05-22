@@ -13,4 +13,3 @@ for epoch in range(10000):
     grad = dfx(guess_x)
     guess_x = guess_x-grad*learning_rate
     print(epoch,guess_x)
-    # print(round(theta[0],3),round(theta[1],3))

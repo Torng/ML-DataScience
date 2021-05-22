@@ -1,7 +1,6 @@
 import numpy as np
-import math
 from typing import List
-from Code.NN_1 import feed_forward
+from Code.DataScience.NN_1 import feed_forward
 import random
 import tqdm
 

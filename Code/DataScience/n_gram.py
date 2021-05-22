@@ -35,10 +35,10 @@ def generate_sentence(grammer:Grammar)->List[str]:
     return expand(grammar,["_S"])
 
 #Get Web text start
-url = "https://www.oreilly.com/radar/what-is-data-science/"
+url = "https://www.managertoday.com.tw/articles/view/62614"
 html = requests.get(url).text
 soup = BeautifulSoup(html,'lxml')
-content = soup.find("div","main-post-radar-content")
+content = soup.find("div","PostHtmlView d-md-flex")
 regex = r"[\w']+|[\.]"
 document = []
 for p in content('p'):
@@ -51,8 +51,8 @@ transitions = defaultdict(list)
 for prev,current in zip(document,document[1:]):
     transitions[prev].append(current)
 # 2-gram &
-
-
+print(generate_using_bigrams(transitions))
+# print()
 
 
 grammar = {
@@ -66,7 +66,8 @@ grammar = {
     "_P"  : ["about", "near"],
     "_V"  : ["learns", "trains", "tests", "is"]
 }
-print(generate_sentence(grammar))
+# print(generate_sentence(grammar))
+
 
 
 

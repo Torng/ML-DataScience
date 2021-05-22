@@ -79,6 +79,8 @@ closeness_node_size = [size*100000 for size in closeness_centrality.values()]
 draw_basic_network_graph(friendpair,closeness_node_size)
 
 
+if __name__ == "__main__":
+    pass
 
 
 

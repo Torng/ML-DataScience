@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List
-from Code.k_means import KMeans,datas
+from Code.DataScience.k_means import KMeans,datas
 from matplotlib import pyplot as plot
 Vector = np.array
 
