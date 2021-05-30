@@ -47,31 +47,57 @@ def user_based_suggestions(user_id:int,users_similarity:List[List[float]],includ
         for interest in users_interests[other_user_id]:
             suggestions[interest] += similarity
     suggestions = sorted(suggestions.items(),key=lambda pair:pair[-1],reverse=True)
-
     if include_current_interests:
         return suggestions
     else:
         return [(suggestion,weight) for suggestion,weight in suggestions
                 if suggestion not in users_interests[user_id]]
 
+"""                            by item                            """
 
+def most_similar_interests_to(interest_id:int,interest_similarities:np.array,interest_map):
+    pairs = [(i,similarity) for i,similarity in enumerate(interest_similarities[interest_id])
+           if i!=interest_id and similarity>0]
+    pairs = [(interest_map[i],s) for i,s in pairs]
+    return sorted(pairs,key=lambda pair:pair[-1],reverse=True)
+
+def item_based_suggestions(user_id:int,users_interest_vectors:List[List[int]],interest_similarities:np.array,interest_map,include_current_interests:bool=False):
+    suggestions:Dict[str,float] = defaultdict(float)
+
+    user_interests = [i for i,is_interested in enumerate(users_interest_vectors[user_id])
+                    if is_interested == 1]
+    for users_interest in user_interests:
+        for i,similarity in enumerate(interest_similarities[users_interest]):
+            suggestions[interest_map[i]] += similarity
+
+    suggestions = sorted(suggestions.items(),key=lambda pair:pair[-1],reverse=True)
+
+    return suggestions
 
 
 if __name__ == "__main__":
     users_interests_counts = Counter(interest for users_interest in users_interests for interest in users_interest)
-    print("users_interests_counts ------->", users_interests_counts)
+    # print("users_interests_counts ------->", users_interests_counts)
     uniqe_interests = sorted({interest for users_interest in users_interests for interest in users_interest})
-    print("uniqe_interests------->", uniqe_interests)
-    users_interest_vector = [make_user_interest_vector(users_interest, uniqe_interests) for users_interest in
+    # print("uniqe_interests------->", uniqe_interests)
+    users_interest_vectors = [make_user_interest_vector(users_interest, uniqe_interests) for users_interest in
                              users_interests]
-    print(most_popular_new_interests(users_interests[0], users_interests_counts))
-    print("users_interest_vector------->", users_interest_vector)
+    # print(most_popular_new_interests(users_interests[0], users_interests_counts))
+    # print("users_interest_vector------->", users_interest_vectors)
 
     users_similarity = [[cosine_similarity(vector_i, vector_j)
-                         for vector_j in users_interest_vector]
-                        for vector_i in users_interest_vector]
-    print("users_similarity---->", users_similarity)
+                         for vector_j in users_interest_vectors]
+                        for vector_i in users_interest_vectors]
+    # print("users_similarity---->", users_similarity)
+    # print(most_similar_users_to(0, users_similarity))
+    # print(user_based_suggestions(0, users_similarity))
 
-    print(most_similar_users_to(0, users_similarity))
+    """                            by item                            """
 
-    print(user_based_suggestions(0, users_similarity))
+    interest_user_matrix = np.array(users_interest_vectors).T
+    print("interest_user_matrix",interest_user_matrix)
+    interest_similarities = [[cosine_similarity(interest_user_i,interest_user_j) for interest_user_j in interest_user_matrix]for interest_user_i in interest_user_matrix]
+    # print(np.array(interest_similarities)[0])
+    # print(most_similar_interests_to(0,interest_similarities,uniqe_interests))
+
+    print(item_based_suggestions(0,users_interest_vectors,interest_similarities,uniqe_interests))
