@@ -20,10 +20,7 @@ users_interests = [
     ["databases", "HBase", "Postgres", "MySQL", "MongoDB"],
     ["libsvm", "regression", "support vector machines"]
 ]
-users_interests_counts =Counter(interest for users_interest in users_interests for interest in users_interest)
-print("users_interests_counts ------->",users_interests_counts)
-uniqe_interests = sorted({interest for users_interest in users_interests for interest in users_interest})
-print("uniqe_interests------->",uniqe_interests)
+
 
 def most_popular_new_interests(user_interests:List[str],
                                popular_interests:Counter,
@@ -56,17 +53,25 @@ def user_based_suggestions(user_id:int,users_similarity:List[List[float]],includ
     else:
         return [(suggestion,weight) for suggestion,weight in suggestions
                 if suggestion not in users_interests[user_id]]
-users_interest_vector = [make_user_interest_vector(users_interest,uniqe_interests) for users_interest in users_interests]
-print(most_popular_new_interests(users_interests[0],users_interests_counts))
-print("users_interest_vector------->",users_interest_vector)
-
-users_similarity = [[cosine_similarity(vector_i,vector_j)
-                     for vector_j in users_interest_vector]
-                    for vector_i in users_interest_vector]
-print("users_similarity---->",users_similarity)
-
-print(most_similar_users_to(0,users_similarity))
-
-print(user_based_suggestions(0,users_similarity))
 
 
+
+
+if __name__ == "__main__":
+    users_interests_counts = Counter(interest for users_interest in users_interests for interest in users_interest)
+    print("users_interests_counts ------->", users_interests_counts)
+    uniqe_interests = sorted({interest for users_interest in users_interests for interest in users_interest})
+    print("uniqe_interests------->", uniqe_interests)
+    users_interest_vector = [make_user_interest_vector(users_interest, uniqe_interests) for users_interest in
+                             users_interests]
+    print(most_popular_new_interests(users_interests[0], users_interests_counts))
+    print("users_interest_vector------->", users_interest_vector)
+
+    users_similarity = [[cosine_similarity(vector_i, vector_j)
+                         for vector_j in users_interest_vector]
+                        for vector_i in users_interest_vector]
+    print("users_similarity---->", users_similarity)
+
+    print(most_similar_users_to(0, users_similarity))
+
+    print(user_based_suggestions(0, users_similarity))
