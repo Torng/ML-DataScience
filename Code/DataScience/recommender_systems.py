@@ -15,14 +15,14 @@ users_interests = [
     ["neural networks", "deep learning", "Big Data", "artificial intelligence"],
     ["Hadoop", "Java", "MapReduce", "Big Data"],
     ["statistics", "R", "statsmodels"],
-    ["C++", "deep learning", "artificial intelligence", "probability"],
+    ["C++", "deep learning", "artificial intelligence", "probabi lity"],
     ["pandas", "R", "Python"],
     ["databases", "HBase", "Postgres", "MySQL", "MongoDB"],
     ["libsvm", "regression", "support vector machines"]
 ]
 
 
-def most_popular_new_interests(user_interests:List[str],
+def most_popular_new_interests(users_interests:List[str],
                                popular_interests:Counter,
                                max_result:int=5)->List[Tuple[str,int]]:
     suggestions = [(interest,frequency) for (interest,frequency) in popular_interests.most_common()
@@ -61,7 +61,10 @@ def most_similar_interests_to(interest_id:int,interest_similarities:np.array,int
     pairs = [(interest_map[i],s) for i,s in pairs]
     return sorted(pairs,key=lambda pair:pair[-1],reverse=True)
 
-def item_based_suggestions(user_id:int,users_interest_vectors:List[List[int]],interest_similarities:np.array,interest_map,include_current_interests:bool=False):
+def item_based_suggestions(user_id:int,
+                           users_interest_vectors:List[List[int]],
+                           interest_similarities:np.array,interest_map,
+                           include_current_interests:bool=False):
     suggestions:Dict[str,float] = defaultdict(float)
 
     user_interests = [i for i,is_interested in enumerate(users_interest_vectors[user_id])
