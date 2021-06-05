@@ -4,15 +4,25 @@ import random
 import scipy.stats as st
 import tqdm
 import numpy as np
+import seaborn as sns
+from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+import json
 class Rating(NamedTuple):
     user_id:str
     movie_id:str
     rating:float
 MOVIES = "../../Data/movies/u.item"
 RATING = "../../Data/movies/u.data"
-
-def random_tensor(dim:int):
-    return [st.norm.ppf(random.random()) for _ in range(dim)]
+def write_dict_to_json(dict:Dict,output_name:str)->None:
+    dict = {int(key):list(val.astype(float)) for key,val in dict.items()}
+    with open(output_name+'.txt', 'w') as file:
+        file.write(json.dumps(dict))
+def read_json_to_dict(file:str)->Dict:
+    with open(file+'.txt') as f:
+        return json.load(f)
+def random_tensor(dim:int)->np.array:
+    return np.array([st.norm.ppf(random.random()) for _ in range(dim)])
 
 def train(dataset:List[Rating],
           movie_vectors:Dict[str,List[float]],
@@ -66,6 +76,26 @@ for epoch in range(20):
     print(epoch,learning_rate)
     train(train_data,movie_vectors,user_vectors,learning_rate)
 train(test,movie_vectors,user_vectors)
+
+write_dict_to_json(movie_vectors,"movie_vectors")
+write_dict_to_json(user_vectors,"user_vectors")
+
+original_vector = [vector for vector in movie_vectors.values()]
+vector_df = pd.DataFrame(data=original_vector,columns=["x","y"])
+sns.scatterplot(x="x",y="y",data=vector_df)
+plt.show()
+
+pca = PCA(n_components=0)
+pca.fit(original_vector)
+X_pca = pca.transform(original_vector)
+X_new = pca.inverse_transform(X_pca)
+
+vector_df["x_new"] = X_new[:, 0]
+vector_df["y_new"] = X_new[:, 1]
+print(X_new)
+
+sns.scatterplot(x="x_new",y="y_new",data=vector_df)
+plt.show()
 
 
 
