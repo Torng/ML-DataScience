@@ -85,7 +85,7 @@ vector_df = pd.DataFrame(data=original_vector,columns=["x","y"])
 sns.scatterplot(x="x",y="y",data=vector_df)
 plt.show()
 
-pca = PCA(n_components=0)
+pca = PCA(n_components=2)
 pca.fit(original_vector)
 X_pca = pca.transform(original_vector)
 X_new = pca.inverse_transform(X_pca)
