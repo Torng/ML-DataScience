@@ -1,5 +1,6 @@
 import pandas as pd
 from typing import NamedTuple,List,Dict
+from collections import defaultdict
 import random
 import scipy.stats as st
 import tqdm
@@ -81,13 +82,15 @@ write_dict_to_json(movie_vectors,"movie_vectors")
 write_dict_to_json(user_vectors,"user_vectors")
 
 original_vector = [vector for vector in movie_vectors.values()]
+means = np.array(original_vector).mean(axis=0)
+means_vector = [[vector[0]-means[0],vector[1]-means[1]]for vector in original_vector]
 vector_df = pd.DataFrame(data=original_vector,columns=["x","y"])
 sns.scatterplot(x="x",y="y",data=vector_df)
 plt.show()
 
-pca = PCA(n_components=2)
-pca.fit(original_vector)
-X_pca = pca.transform(original_vector)
+pca = PCA(n_components=1)
+pca.fit(means_vector)
+X_pca = pca.transform(means_vector)
 X_new = pca.inverse_transform(X_pca)
 
 vector_df["x_new"] = X_new[:, 0]
@@ -97,6 +100,18 @@ print(X_new)
 sns.scatterplot(x="x_new",y="y_new",data=vector_df)
 plt.show()
 
+ratings_by_movie = defaultdict(list)
+for rate in rating:
+    ratings_by_movie[rate.movie_id].append(rate.rating)
 
-
+vectors = [
+    (movie_id,
+     sum(ratings_by_movie[int(movie_id)])/len(ratings_by_movie[int(movie_id)]),
+     movies[movie_id],
+     pca.transform([vector])
+     )
+    for movie_id,vector in zip(movie_vectors.keys(),means_vector)
+]
+print(vectors)
+print(sorted(vectors,key=lambda v :v[-1][0])[:25])
 
