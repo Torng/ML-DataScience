@@ -74,6 +74,24 @@ class SSE(Loss):
                               predicted,
                               actual)
 
+class Momentum(Optimizer):
+    def __init__(self,learning_rate:float,momentum:float=0.9):
+        self.lr = learning_rate
+        self.mo = momentum
+        self.updates:List[Tensor]=[]
+    def step(self,layer:Layer) ->None:
+        if not self.updates:
+            self.updates = [np.zeros_like(grad) for grad in layer.grads()]
+        for update,param,grad in zip(self.updates,
+                                     layer.params(),
+                                     layer.grads()):
+            update[:] = tensor_combine(lambda u,g : self.mo*u+(1-self.mo)*g,
+                                       update,
+                                       grad)
+            param[:] = tensor_combine(lambda p,u : p-self.lr*u,
+                                      param,
+                                      update)
+
 class GradientDescent(Optimizer):
     def __init__(self,learning_rate:float=0.1):
         self.lr = learning_rate
