@@ -1,10 +1,17 @@
 import math
-from Code.ML.deep_learning import Layer,tensor_apply,Tensor,tensor_combine,random_tensor
+from Code.ML.deep_learning import Layer,tensor_apply,Tensor,tensor_combine,random_tensor,Loss,Optimizer
 import numpy as np
 from typing import List
 from collections import Iterable
 def sigmoid(t: float) -> float:
     return 1 / (1 + math.exp(-t))
+def tanh(x:float)->float:
+    if(x<-100):
+        return -1
+    elif(x>100):
+        return  1
+    em2x = math.exp(-2*x)
+    return (1-em2x)/(1+em2x)
 
 class Sigmoid(Layer):
     def forward(self,input:Tensor):
@@ -32,10 +39,12 @@ class Linear(Layer):
         self.w_grad = [[self.input[i]*gradient[o]
                         for i in range(self.input_dim)]
                        for o in range(self.output_dim)]
-        return [sum(self.w[o][i]*gradient[o] for o in range(self.output_dim)) for i in range(self.input_dim)]
-    def params(self) ->Iterable[Tensor]:
+        return [sum(self.w[o][i]*gradient[o]
+                    for o in range(self.output_dim))
+                for i in range(self.input_dim)]
+    def params(self) :
         return [self.w,self.b]
-    def grads(self) ->Iterable[Tensor]:
+    def grads(self) :
         return [self.w_grad,self.b_grad]
 
 class Seqential(Layer):
@@ -49,8 +58,45 @@ class Seqential(Layer):
         for layer in reversed(self.layers):
             gradient = layer.backward(gradient)
         return gradient
-    def params(self) ->Iterable[Tensor]:
+    def params(self) :
         return (param for layer in self.layers for param in layer.params())
-    def grads(self) ->Iterable[Tensor]:
+    def grads(self) :
         return (grad for layer in self.layers for grad in layer.grads())
 
+class SSE(Loss):
+    def loss(self,predicted:Tensor,actual:Tensor):
+        square_error =  tensor_combine(lambda predicted, actual:(predicted-actual)**2,
+                              predicted,
+                              actual)
+        return  np.sum(square_error)
+    def gradient(self,predicted:Tensor,actual:Tensor):
+        return tensor_combine(lambda predicted, actual:2*(predicted-actual),
+                              predicted,
+                              actual)
+
+class GradientDescent(Optimizer):
+    def __init__(self,learning_rate:float=0.1):
+        self.lr = learning_rate
+
+    def step(self,layer:Layer) ->None:
+        for param,grad in zip(layer.params(),layer.grads()):
+            param[:] = tensor_combine(lambda param,grad:param-grad*self.lr,
+                                      param,
+                                      grad)
+class Tanh(Layer):
+    def forward(self,input:Tensor):
+        self.tanh = tensor_apply(tanh,input)
+        return self.tanh
+    def backward(self,gradient:Tensor):
+        return tensor_combine(lambda tanh,grad : (1-tanh**2)*grad,
+                              self.tanh,
+                              gradient)
+
+class Relu(Layer):
+    def forward(self,input:Tensor):
+        self.input = input
+        return tensor_apply(lambda x: max(x,0),input)
+    def backward(self,gradient:Tensor):
+        return tensor_combine(lambda x,grad: grad if x>0 else 0,
+                              self.input,
+                              gradient)
