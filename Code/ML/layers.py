@@ -2,16 +2,25 @@ import math
 from Code.ML.deep_learning import Layer,tensor_apply,Tensor,tensor_combine,random_tensor,Loss,Optimizer
 import numpy as np
 from typing import List
-from collections import Iterable
+import random
 def sigmoid(t: float) -> float:
     return 1 / (1 + math.exp(-t))
-def tanh(x:float)->float:
+def tanh(x:float)-> float:
     if(x<-100):
         return -1
     elif(x>100):
         return  1
     em2x = math.exp(-2*x)
     return (1-em2x)/(1+em2x)
+
+def softemax(tensor:Tensor):
+    if np.array(tensor).ndim ==1:
+        largest = max(tensor)
+        exps = [math.exp(x-largest) for x in tensor]
+        sum_of_exps = sum(exps)
+        return [exp_i / sum_of_exps for exp_i in exps]
+    else:
+        return [softemax(tensor_i) for tensor_i in tensor]
 
 class Sigmoid(Layer):
     def forward(self,input:Tensor):
@@ -50,16 +59,20 @@ class Linear(Layer):
 class Seqential(Layer):
     def __init__(self,layers:List[Layer]):
         self.layers = layers
+
     def forward(self,input:Tensor):
         for layer in self.layers:
             input = layer.forward(input)
         return input
+
     def backward(self,gradient:Tensor):
         for layer in reversed(self.layers):
             gradient = layer.backward(gradient)
         return gradient
-    def params(self) :
+
+    def params(self):
         return (param for layer in self.layers for param in layer.params())
+
     def grads(self) :
         return (grad for layer in self.layers for grad in layer.grads())
 
@@ -68,7 +81,8 @@ class SSE(Loss):
         square_error =  tensor_combine(lambda predicted, actual:(predicted-actual)**2,
                               predicted,
                               actual)
-        return  np.sum(square_error)
+        return np.sum(square_error)
+
     def gradient(self,predicted:Tensor,actual:Tensor):
         return tensor_combine(lambda predicted, actual:2*(predicted-actual),
                               predicted,
@@ -118,3 +132,38 @@ class Relu(Layer):
         return tensor_combine(lambda x,grad: grad if x>0 else 0,
                               self.input,
                               gradient)
+
+class SoftmaxCrossEntropy(Loss):
+    def loss(self,predicted:Tensor,actual:Tensor):
+        probabilities = softemax(predicted)
+        likeihoods = tensor_combine(lambda p,act:math.log(p+1e-30)*act,
+                                    probabilities,
+                                    actual)
+        return -1*np.sum(likeihoods)
+    def gradient(self,predicted:Tensor,actual:Tensor):
+        probabilities = softemax(predicted)
+
+        return tensor_combine(lambda p,actual:p-actual,
+                              probabilities,
+                              actual)
+
+class Dropout(Layer):
+    def __init__(self,p:float):
+        self.p = p
+        self.train = True
+    def forward(self,input:Tensor):
+        if self.train:
+            self.mask = tensor_apply(lambda _:0 if random.random() < self.p else 1,
+                                     input)
+            return np.multiply(input,self.mask)
+        else:
+            return tensor_apply(lambda x: x * (1 - self.p), input)
+    def backward(self,gradient:Tensor):
+         if self.train:
+             return np.multiply(gradient,self.mask)
+         else:
+             raise RuntimeError("don't call backward when not in train mode")
+
+
+
+

@@ -1,14 +1,14 @@
-from Code.ML.layers import Seqential,Linear,Sigmoid,GradientDescent,SSE
+from Code.ML.layers import Seqential,Linear,Sigmoid,GradientDescent,SSE,SoftmaxCrossEntropy,Tanh,Momentum
 import tqdm
-net = Seqential([Linear(input_dim=2,output_dim=2),
-                 Sigmoid(),
-                 Linear(input_dim=2,output_dim=1)])
+net = Seqential([Linear(input_dim=2,output_dim=10),
+                 Tanh(),
+                 Linear(input_dim=10,output_dim=1)])
 
 xs = [[0.,0.],[0.,1.],[1.,0.],[1.,1.]]
 ys = [[0.],[1.],[1.],[0.]]
 
-optimizer = GradientDescent(learning_rate=0.1)
-loss = SSE()
+optimizer = Momentum(learning_rate=0.1)
+loss = SoftmaxCrossEntropy()
 
 with tqdm.trange(3000) as t:
     for epoch in t :
@@ -25,6 +25,8 @@ with tqdm.trange(3000) as t:
 
 
 print(net.forward([0,0]))
+print(net.forward([0,1]))
+print(net.forward([1,0]))
 
 
 
